@@ -380,6 +380,8 @@ def train(settings: Settings, run: RunLogger, data_dir: Path, output_dir: Path) 
                 "train.epoch_accuracy": "HIGHER",
                 "validation.loss": "LOWER",
                 "validation.accuracy": "HIGHER",
+                "performance.examples_per_second": "HIGHER",
+                "performance.epoch_duration_seconds": "LOWER",
             },
         )
         metric_history.extend(
