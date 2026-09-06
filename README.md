@@ -48,8 +48,10 @@ To verify the model without creating a Research Tab run:
 python train.py --offline --seed 7
 ```
 
-`--offline` exists only for development and CI. Reference and user-visible tutorial executions are
-always created through `researchtab.init()`.
+`--offline` exists only for development, CI, and validating candidate reference artifacts before
+they are curated into the tutorial template. Every run sent to Research Tab is created through
+`researchtab.init()`; failures are preserved as failures and are never replaced with synthetic
+successful data.
 
 ## Interpreting the tutorial
 

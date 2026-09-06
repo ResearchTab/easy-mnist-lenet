@@ -1,0 +1,10 @@
+{
+  "model": "LeNet-5",
+  "run_duration_seconds": 32.293855799827725,
+  "seed": 21,
+  "split_seed": 20260906,
+  "test_accuracy": 0.9698,
+  "test_loss": 0.10243524742126466,
+  "validation_accuracy": 0.9644,
+  "validation_loss": 0.11750868932008743
+}

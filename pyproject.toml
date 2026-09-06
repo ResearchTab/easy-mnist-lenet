@@ -21,7 +21,11 @@ dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 markers = ["slow: downloads MNIST and trains the model"]
+
+[tool.setuptools]
+py-modules = ["train"]
 
 [tool.ruff]
 line-length = 100

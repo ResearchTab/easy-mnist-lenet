@@ -14,7 +14,12 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install -e ".[dev]"
+      # The official SDK is released from the Research Tab product repository. Install the
+      # tutorial's remaining dependencies explicitly so this public repository can validate
+      # pull requests while the 0.4 package release is staged, then install the project without
+      # asking pip to resolve that release-only dependency.
+      - run: python -m pip install "psutil>=6,<8" "torch>=2.6,<3" "torchvision>=0.21,<1" "pytest>=8,<10" "ruff>=0.11,<1"
+      - run: python -m pip install -e . --no-deps
       - run: ruff check .
       - run: pytest
       - name: Smoke train against a tiny in-memory batch

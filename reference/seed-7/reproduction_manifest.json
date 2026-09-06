@@ -1,0 +1,25 @@
+{
+  "command": "python train.py --project EASY --experiment E-1 --seed <seed>",
+  "configuration": {
+    "batch_size": 128,
+    "epochs": 3,
+    "learning_rate": 0.01,
+    "log_every": 50,
+    "momentum": 0.9,
+    "num_workers": 0,
+    "seed": 7,
+    "split_seed": 20260906
+  },
+  "dataset": "torchvision-MNIST-v1",
+  "git_commit": "95a33c6d92d5ccdefc1bda07dea10faa03b7c049",
+  "model": "LeNet-5",
+  "platform": "Windows",
+  "python": "3.14.6",
+  "split": {
+    "test": 10000,
+    "train": 40000,
+    "unused": 10000,
+    "validation": 10000
+  },
+  "torch": "2.12.1+cpu"
+}
