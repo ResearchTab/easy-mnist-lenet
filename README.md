@@ -9,7 +9,7 @@ Research Tab with the official `researchtab` Python package.
 - sampled training loss and accuracy every 50 optimizer steps;
 - epoch training and validation loss and accuracy;
 - final test loss and accuracy;
-- learning rate, throughput, epoch duration, CPU usage, and memory usage;
+- throughput, epoch duration, CPU usage, and memory usage;
 - heartbeats and progress while the model is training;
 - the exact configuration, split seed, model seed, package inventory, and Git revision;
 - JSON and CSV artifacts for the summary, metric history, class metrics, confusion matrix, and

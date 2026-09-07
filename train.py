@@ -358,7 +358,6 @@ def train(settings: Settings, run: RunLogger, data_dir: Path, output_dir: Path) 
             "train.epoch_accuracy": train_accuracy,
             "validation.loss": validation_loss,
             "validation.accuracy": validation_accuracy,
-            "optimizer.learning_rate": optimizer.param_groups[0]["lr"],
             "performance.examples_per_second": epoch_count / epoch_duration,
             "performance.epoch_duration_seconds": epoch_duration,
         }
@@ -367,7 +366,6 @@ def train(settings: Settings, run: RunLogger, data_dir: Path, output_dir: Path) 
             "train.epoch_accuracy": "fraction",
             "validation.loss": "cross_entropy",
             "validation.accuracy": "fraction",
-            "optimizer.learning_rate": "ratio",
             "performance.examples_per_second": "examples/second",
             "performance.epoch_duration_seconds": "seconds",
         }

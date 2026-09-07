@@ -17,7 +17,6 @@ step,key,value,unit,source
 313,train.epoch_accuracy,0.773275,fraction,EXPERIMENT
 313,validation.loss,0.28605747294425965,cross_entropy,EXPERIMENT
 313,validation.accuracy,0.9156,fraction,EXPERIMENT
-313,optimizer.learning_rate,0.01,ratio,EXPERIMENT
 313,performance.examples_per_second,4026.9480544970293,examples/second,EXPERIMENT
 313,performance.epoch_duration_seconds,9.933080699993297,seconds,EXPERIMENT
 313,system.cpu.percent,59.0,percent,SYSTEM
@@ -38,7 +37,6 @@ step,key,value,unit,source
 626,train.epoch_accuracy,0.93605,fraction,EXPERIMENT
 626,validation.loss,0.17653444947004318,cross_entropy,EXPERIMENT
 626,validation.accuracy,0.9487,fraction,EXPERIMENT
-626,optimizer.learning_rate,0.01,ratio,EXPERIMENT
 626,performance.examples_per_second,4018.8202154956175,examples/second,EXPERIMENT
 626,performance.epoch_duration_seconds,9.953169799875468,seconds,EXPERIMENT
 626,system.cpu.percent,59.6,percent,SYSTEM
@@ -59,7 +57,6 @@ step,key,value,unit,source
 939,train.epoch_accuracy,0.95895,fraction,EXPERIMENT
 939,validation.loss,0.12085536410808563,cross_entropy,EXPERIMENT
 939,validation.accuracy,0.9651,fraction,EXPERIMENT
-939,optimizer.learning_rate,0.01,ratio,EXPERIMENT
 939,performance.examples_per_second,4008.83378601568,examples/second,EXPERIMENT
 939,performance.epoch_duration_seconds,9.97796419984661,seconds,EXPERIMENT
 939,system.cpu.percent,60.0,percent,SYSTEM

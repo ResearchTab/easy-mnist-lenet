@@ -32,6 +32,7 @@ def test_reference_runs_are_finite_successful_and_sanitized() -> None:
         ]
         assert len(epoch_losses) == 3
         assert epoch_losses[0] > epoch_losses[1] > epoch_losses[2]
+        assert all(metric["key"] != "optimizer.learning_rate" for metric in metrics)
         assert {metric["source"] for metric in metrics} == {"EXPERIMENT", "SYSTEM"}
 
         manifest = json.loads((run_dir / "reproduction_manifest.json").read_text(encoding="utf-8"))
