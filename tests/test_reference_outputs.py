@@ -5,7 +5,7 @@ import json
 import math
 from pathlib import Path
 
-EXECUTION_COMMIT = "95a33c6d92d5ccdefc1bda07dea10faa03b7c049"
+EXECUTION_COMMIT = "49b7d3cbb3905f087f8522859bf5ba616f6491fb"
 REFERENCE_ROOT = Path(__file__).parents[1] / "reference"
 
 
@@ -30,8 +30,12 @@ def test_reference_runs_are_finite_successful_and_sanitized() -> None:
         epoch_losses = [
             float(metric["value"]) for metric in metrics if metric["key"] == "train.epoch_loss"
         ]
+        validation_accuracy = [
+            metric for metric in metrics if metric["key"] == "validation.accuracy"
+        ]
         assert len(epoch_losses) == 3
         assert epoch_losses[0] > epoch_losses[1] > epoch_losses[2]
+        assert len(validation_accuracy) == 21
         assert all(metric["key"] != "optimizer.learning_rate" for metric in metrics)
         assert {metric["source"] for metric in metrics} == {"EXPERIMENT", "SYSTEM"}
 

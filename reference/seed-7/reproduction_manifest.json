@@ -8,10 +8,11 @@
     "momentum": 0.9,
     "num_workers": 0,
     "seed": 7,
-    "split_seed": 20260906
+    "split_seed": 20260906,
+    "validation_every": 50
   },
   "dataset": "torchvision-MNIST-v1",
-  "git_commit": "95a33c6d92d5ccdefc1bda07dea10faa03b7c049",
+  "git_commit": "49b7d3cbb3905f087f8522859bf5ba616f6491fb",
   "model": "LeNet-5",
   "platform": "Windows",
   "python": "3.14.6",
