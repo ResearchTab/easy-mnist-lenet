@@ -7,7 +7,8 @@ Research Tab with the official `researchtab` Python package.
 ## What the example records
 
 - sampled training loss and accuracy every 50 optimizer steps;
-- epoch training and validation loss and accuracy;
+- validation loss and accuracy every 50 optimizer steps and at each epoch boundary;
+- epoch training loss and accuracy;
 - final test loss and accuracy;
 - throughput, epoch duration, CPU usage, and memory usage;
 - heartbeats and progress while the model is training;

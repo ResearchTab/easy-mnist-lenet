@@ -130,6 +130,7 @@ class Settings:
     learning_rate: float = 0.01
     momentum: float = 0.9
     log_every: int = 50
+    validation_every: int = 50
     num_workers: int = 0
 
 
@@ -183,7 +184,11 @@ def create_loaders(
 
 
 def evaluate(
-    model: nn.Module, loader: DataLoader[Any], criterion: nn.Module
+    model: nn.Module,
+    loader: DataLoader[Any],
+    criterion: nn.Module,
+    *,
+    collect_confusion: bool = True,
 ) -> tuple[float, float, torch.Tensor]:
     model.eval()
     loss_total = 0.0
@@ -197,8 +202,9 @@ def evaluate(
             predictions = logits.argmax(dim=1)
             correct += int((predictions == labels).sum())
             count += len(labels)
-            for expected, predicted in zip(labels.tolist(), predictions.tolist(), strict=True):
-                confusion[expected, predicted] += 1
+            if collect_confusion:
+                for expected, predicted in zip(labels.tolist(), predictions.tolist(), strict=True):
+                    confusion[expected, predicted] += 1
     return loss_total / count, correct / count, confusion
 
 
@@ -276,6 +282,8 @@ def write_outputs(
 
 
 def train(settings: Settings, run: RunLogger, data_dir: Path, output_dir: Path) -> dict[str, Any]:
+    if settings.validation_every < 1:
+        raise ValueError("validation_every must be at least 1")
     run_started = time.perf_counter()
     seed_everything(settings.seed)
     train_loader, validation_loader, test_loader = create_loaders(settings, data_dir)
@@ -347,6 +355,55 @@ def train(settings: Settings, run: RunLogger, data_dir: Path, output_dir: Path) 
                     total_steps=total_steps,
                 )
             global_step += 1
+            if global_step % settings.validation_every == 0:
+                checkpoint_loss, checkpoint_accuracy, _ = evaluate(
+                    model,
+                    validation_loader,
+                    criterion,
+                    collect_confusion=False,
+                )
+                run.log(
+                    {
+                        "validation.loss": checkpoint_loss,
+                        "validation.accuracy": checkpoint_accuracy,
+                    },
+                    step=global_step,
+                    units={
+                        "validation.loss": "cross_entropy",
+                        "validation.accuracy": "fraction",
+                    },
+                    directions={
+                        "validation.loss": "LOWER",
+                        "validation.accuracy": "HIGHER",
+                    },
+                )
+                metric_history.extend(
+                    [
+                        {
+                            "step": global_step,
+                            "key": "validation.loss",
+                            "value": checkpoint_loss,
+                            "unit": "cross_entropy",
+                            "source": "EXPERIMENT",
+                        },
+                        {
+                            "step": global_step,
+                            "key": "validation.accuracy",
+                            "value": checkpoint_accuracy,
+                            "unit": "fraction",
+                            "source": "EXPERIMENT",
+                        },
+                    ]
+                )
+                history.append(
+                    {
+                        "step": global_step,
+                        "scope": "validation_checkpoint",
+                        "loss": checkpoint_loss,
+                        "accuracy": checkpoint_accuracy,
+                    }
+                )
+                model.train()
 
         train_loss = epoch_loss / epoch_count
         train_accuracy = epoch_correct / epoch_count
@@ -517,6 +574,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--batch-size", type=int, default=128)
+    parser.add_argument("--validation-every", type=int, default=50)
     parser.add_argument("--api-url")
     parser.add_argument("--data-dir", type=Path, default=Path("data"))
     parser.add_argument("--output-dir", type=Path, default=Path("outputs"))
@@ -526,7 +584,12 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    settings = Settings(seed=args.seed, epochs=args.epochs, batch_size=args.batch_size)
+    settings = Settings(
+        seed=args.seed,
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        validation_every=args.validation_every,
+    )
     context: AbstractContextManager[RunLogger]
     if args.offline:
         context = nullcontext(LocalRun())
