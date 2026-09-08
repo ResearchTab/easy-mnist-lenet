@@ -27,6 +27,7 @@ SPLIT_SEED = 20260906
 TRAIN_PER_CLASS = 4_000
 VALIDATION_PER_CLASS = 1_000
 MNIST_VERSION = "torchvision-MNIST-v1"
+EXPECTED_TRAINABLE_PARAMETERS = 61_706
 
 
 class RunLogger(Protocol):
@@ -121,8 +122,50 @@ class LeNet5(nn.Module):
         return self.classifier(self.features(inputs))
 
 
+class ParameterMatchedMLP(nn.Module):
+    """Tanh MLP with exactly the same number of trainable parameters as LeNet-5."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.network = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(784, 65),
+            nn.Tanh(),
+            nn.Linear(65, 76),
+            nn.Tanh(),
+            nn.Linear(76, 65),
+            nn.Tanh(),
+            nn.Linear(65, 10),
+        )
+
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        return self.network(inputs)
+
+
+def trainable_parameter_count(model: nn.Module) -> int:
+    return sum(parameter.numel() for parameter in model.parameters() if parameter.requires_grad)
+
+
+def create_model(model_name: str) -> nn.Module:
+    model: nn.Module
+    if model_name == "lenet":
+        model = LeNet5()
+    elif model_name == "mlp-matched":
+        model = ParameterMatchedMLP()
+    else:
+        raise ValueError(f"Unsupported model: {model_name}")
+    parameter_count = trainable_parameter_count(model)
+    if parameter_count != EXPECTED_TRAINABLE_PARAMETERS:
+        raise RuntimeError(
+            f"{model_name} has {parameter_count:,} trainable parameters; "
+            f"expected {EXPECTED_TRAINABLE_PARAMETERS:,}."
+        )
+    return model
+
+
 @dataclass(frozen=True)
 class Settings:
+    model: str = "lenet"
     seed: int = 7
     split_seed: int = SPLIT_SEED
     batch_size: int = 128
@@ -132,6 +175,7 @@ class Settings:
     log_every: int = 50
     validation_every: int = 50
     num_workers: int = 0
+    system_metrics: bool = False
 
 
 def seed_everything(seed: int) -> None:
@@ -265,11 +309,15 @@ def write_outputs(
 
     manifest_path = output_dir / "reproduction_manifest.json"
     manifest = {
-        "command": "python train.py --project EASY --experiment E-1 --seed <seed>",
+        "command": (
+            "python train.py --project EASY --experiment <E-1|E-3> "
+            f"--model {settings.model} --seed <seed>"
+        ),
         "configuration": asdict(settings),
         "dataset": MNIST_VERSION,
         "git_commit": git_commit(),
-        "model": "LeNet-5",
+        "model": settings.model,
+        "trainable_parameters": EXPECTED_TRAINABLE_PARAMETERS,
         "platform": platform.system(),
         "python": platform.python_version(),
         "split": {"train": 40_000, "validation": 10_000, "test": 10_000, "unused": 10_000},
@@ -287,7 +335,7 @@ def train(settings: Settings, run: RunLogger, data_dir: Path, output_dir: Path) 
     run_started = time.perf_counter()
     seed_everything(settings.seed)
     train_loader, validation_loader, test_loader = create_loaders(settings, data_dir)
-    model = LeNet5()
+    model = create_model(settings.model)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(
         model.parameters(), lr=settings.learning_rate, momentum=settings.momentum
@@ -449,7 +497,7 @@ def train(settings: Settings, run: RunLogger, data_dir: Path, output_dir: Path) 
             }
             for key, value in epoch_metrics.items()
         )
-        if psutil is not None:
+        if settings.system_metrics and psutil is not None:
             memory_mb = psutil.Process(os.getpid()).memory_info().rss / (1024 * 1024)
             system_metrics = {
                 "system.cpu.percent": psutil.cpu_percent(interval=None),
@@ -537,7 +585,8 @@ def train(settings: Settings, run: RunLogger, data_dir: Path, output_dir: Path) 
         {"step": total_steps + 1, "scope": "test", "loss": test_loss, "accuracy": test_accuracy}
     )
     summary = {
-        "model": "LeNet-5",
+        "model": settings.model,
+        "trainable_parameters": EXPECTED_TRAINABLE_PARAMETERS,
         "seed": settings.seed,
         "split_seed": settings.split_seed,
         "test_accuracy": test_accuracy,
@@ -551,7 +600,7 @@ def train(settings: Settings, run: RunLogger, data_dir: Path, output_dir: Path) 
         run.log_artifact(artifact, logical_path="evaluation", tags=["tutorial", "mnist"])
     run.set_summary(
         interpretation=(
-            f"LeNet-5 reached {test_accuracy:.2%} accuracy on the official MNIST test set."
+            f"{settings.model} reached {test_accuracy:.2%} accuracy on the official MNIST test set."
         ),
         limitations=(
             "This compact tutorial uses one deterministic split and three epochs. It is not a "
@@ -571,6 +620,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--project", default="EASY")
     parser.add_argument("--experiment", default="E-1")
+    parser.add_argument("--model", choices=("lenet", "mlp-matched"), default="lenet")
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--batch-size", type=int, default=128)
@@ -579,16 +629,23 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--data-dir", type=Path, default=Path("data"))
     parser.add_argument("--output-dir", type=Path, default=Path("outputs"))
     parser.add_argument("--offline", action="store_true")
+    parser.add_argument(
+        "--system-metrics",
+        action="store_true",
+        help="Opt in to CPU and process-memory telemetry through run.log_system().",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
     settings = Settings(
+        model=args.model,
         seed=args.seed,
         epochs=args.epochs,
         batch_size=args.batch_size,
         validation_every=args.validation_every,
+        system_metrics=args.system_metrics,
     )
     context: AbstractContextManager[RunLogger]
     if args.offline:
@@ -599,9 +656,9 @@ def main() -> None:
         context = researchtab.init(
             project=args.project,
             experiment=args.experiment,
-            name=f"LeNet seed {settings.seed}",
+            name=f"{'LeNet' if settings.model == 'lenet' else 'Matched MLP'} seed {settings.seed}",
             config=asdict(settings),
-            tags=["tutorial", "mnist", "lenet"],
+            tags=["tutorial", "mnist", settings.model, "aggregate-benchmark-v1"],
             seed=settings.seed,
             api_url=args.api_url,
             collect_packages=True,
@@ -613,7 +670,12 @@ def main() -> None:
             ),
         )
     with context as run:
-        summary = train(settings, run, args.data_dir, args.output_dir / f"seed-{settings.seed}")
+        summary = train(
+            settings,
+            run,
+            args.data_dir,
+            args.output_dir / settings.model / f"seed-{settings.seed}",
+        )
         run.finish(outcome="POSITIVE" if summary["test_accuracy"] >= 0.95 else "NEGATIVE")
     print(json.dumps(summary, sort_keys=True))
 

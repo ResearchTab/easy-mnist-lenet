@@ -22,5 +22,5 @@ jobs:
       - run: python -m pip install -e . --no-deps
       - run: ruff check .
       - run: pytest
-      - name: Smoke train against a tiny in-memory batch
-        run: python -c "import torch; from train import LeNet5; y=LeNet5()(torch.zeros(2,1,28,28)); assert y.shape == (2,10)"
+      - name: Smoke both parameter-matched models against a tiny in-memory batch
+        run: python -c "import torch; from train import EXPECTED_TRAINABLE_PARAMETERS,create_model,trainable_parameter_count; x=torch.zeros(2,1,28,28); models=[create_model('lenet'),create_model('mlp-matched')]; assert all(model(x).shape == (2,10) for model in models); assert all(trainable_parameter_count(model) == EXPECTED_TRAINABLE_PARAMETERS for model in models)"

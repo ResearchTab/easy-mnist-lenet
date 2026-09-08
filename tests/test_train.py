@@ -2,12 +2,30 @@ from __future__ import annotations
 
 import torch
 
-from train import SPLIT_SEED, LeNet5, class_balanced_split
+from train import (
+    EXPECTED_TRAINABLE_PARAMETERS,
+    SPLIT_SEED,
+    LeNet5,
+    ParameterMatchedMLP,
+    class_balanced_split,
+    create_model,
+    trainable_parameter_count,
+)
 
 
 def test_lenet_output_shape() -> None:
     output = LeNet5()(torch.zeros(4, 1, 28, 28))
     assert output.shape == (4, 10)
+
+
+def test_parameter_matched_models_have_identical_capacity_and_output_shape() -> None:
+    lenet = create_model("lenet")
+    mlp = create_model("mlp-matched")
+    assert isinstance(lenet, LeNet5)
+    assert isinstance(mlp, ParameterMatchedMLP)
+    assert trainable_parameter_count(lenet) == EXPECTED_TRAINABLE_PARAMETERS
+    assert trainable_parameter_count(mlp) == EXPECTED_TRAINABLE_PARAMETERS
+    assert mlp(torch.zeros(4, 1, 28, 28)).shape == (4, 10)
 
 
 def test_class_balanced_split_is_deterministic_and_disjoint() -> None:
