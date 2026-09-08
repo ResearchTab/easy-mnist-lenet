@@ -62,6 +62,11 @@ Canonical comparison runs use seeds `7`, `21`, `42`, `84`, and `168` for both ar
 carry the `aggregate-benchmark-v1` tag. Add `--system-metrics` only when CPU and process-memory
 telemetry is appropriate for the machine running the experiment.
 
+Sanitized outputs for the complete matrix are published under [`reference/`](reference/README.md).
+[`aggregate-summary.csv`](reference/aggregate-summary.csv) preserves every final run value, while
+[`aggregate-summary.json`](reference/aggregate-summary.json) records the exact means and sample
+standard deviations used by the Easy Project Paper.
+
 ## Interpreting the tutorial
 
 The included reference runs demonstrate Research Tab's workflow. They are training examples, not

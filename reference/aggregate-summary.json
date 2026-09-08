@@ -1,0 +1,23 @@
+{
+  "executable_commit": "0a93183e5e93adce959839bf02cd1d09128ac14a",
+  "models": {
+    "lenet": {
+      "n": 5,
+      "seeds": [7, 21, 42, 84, 168],
+      "test_accuracy_mean": 0.96806,
+      "test_accuracy_sample_sd": 0.0026763781496642086,
+      "validation_accuracy_mean": 0.96528,
+      "validation_accuracy_sample_sd": 0.0013773162309361035
+    },
+    "mlp-matched": {
+      "n": 5,
+      "seeds": [7, 21, 42, 84, 168],
+      "test_accuracy_mean": 0.95756,
+      "test_accuracy_sample_sd": 0.0003361547262793952,
+      "validation_accuracy_mean": 0.95506,
+      "validation_accuracy_sample_sd": 0.0015306861206661508
+    }
+  },
+  "split_seed": 20260906,
+  "trainable_parameters_per_model": 61706
+}

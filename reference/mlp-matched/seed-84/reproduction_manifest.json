@@ -1,21 +1,21 @@
 {
-  "command": "python train.py --project EASY --experiment <E-1|E-3> --model lenet --seed <seed>",
+  "command": "python train.py --project EASY --experiment <E-1|E-3> --model mlp-matched --seed <seed>",
   "configuration": {
     "batch_size": 128,
     "epochs": 3,
     "learning_rate": 0.01,
     "log_every": 50,
-    "model": "lenet",
+    "model": "mlp-matched",
     "momentum": 0.9,
     "num_workers": 0,
-    "seed": 21,
+    "seed": 84,
     "split_seed": 20260906,
     "system_metrics": true,
     "validation_every": 50
   },
   "dataset": "torchvision-MNIST-v1",
   "git_commit": "0a93183e5e93adce959839bf02cd1d09128ac14a",
-  "model": "lenet",
+  "model": "mlp-matched",
   "platform": "Windows",
   "python": "3.14.6",
   "split": {

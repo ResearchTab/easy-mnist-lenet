@@ -1,0 +1,11 @@
+{
+  "model": "lenet",
+  "run_duration_seconds": 92.52849170006812,
+  "seed": 42,
+  "split_seed": 20260906,
+  "test_accuracy": 0.9662,
+  "test_loss": 0.109922931265831,
+  "trainable_parameters": 61706,
+  "validation_accuracy": 0.9641,
+  "validation_loss": 0.12156057957410812
+}

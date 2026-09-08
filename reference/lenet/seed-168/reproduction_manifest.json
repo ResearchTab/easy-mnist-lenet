@@ -8,7 +8,7 @@
     "model": "lenet",
     "momentum": 0.9,
     "num_workers": 0,
-    "seed": 21,
+    "seed": 168,
     "split_seed": 20260906,
     "system_metrics": true,
     "validation_every": 50

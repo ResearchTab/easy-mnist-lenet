@@ -1,5 +1,7 @@
 data/
 outputs/
+canonical-outputs/
+pytest-cache-files-*/
 .venv/
 __pycache__/
 .pytest_cache/

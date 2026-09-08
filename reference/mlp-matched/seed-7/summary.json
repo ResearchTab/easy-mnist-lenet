@@ -1,0 +1,11 @@
+{
+  "model": "mlp-matched",
+  "run_duration_seconds": 72.61942490004003,
+  "seed": 7,
+  "split_seed": 20260906,
+  "test_accuracy": 0.9572,
+  "test_loss": 0.14806909989118577,
+  "trainable_parameters": 61706,
+  "validation_accuracy": 0.9525,
+  "validation_loss": 0.15649929723739625
+}
