@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 
-# These are the five CPU reference runs recorded for both architectures.
+# These are the five live CPU runs recorded in Research Desk for both architectures.
 EXPECTED_SEEDS = (7, 21, 42, 84, 168)
 
 # Okabe-Ito blue and vermillion remain distinguishable for most forms of
@@ -187,8 +187,8 @@ def assert_expected_statistics(summary: dict[str, dict[str, float | int | str]])
     # Values are kept at full precision.  The tolerance only absorbs harmless
     # floating-point differences; it is much tighter than the plotted precision.
     expected = {
-        "E-1": (96.806, 0.26763781496642086, 90.62480818000623, 2.6198719538597772),
-        "E-3": (95.756, 0.03361547262793952, 67.78935448005795, 7.818482455388664),
+        "E-1": (96.806, 0.26763781496642086, 75.5641363799572, 0.4754235901606291),
+        "E-3": (95.756, 0.03361547262793952, 72.86635902002453, 1.0629716152274225),
     }
     fields = (
         "accuracyMeanPercent",
@@ -229,7 +229,8 @@ def render(records: list[dict[str, Any]], summary: dict[str, dict[str, float | i
     for code, style in SERIES.items():
         group = [record for record in records if record["experimentCode"] == code]
 
-        # Small markers retain all observations, including the 53.9 s MLP run.
+        # Small markers retain every selected run instead of hiding the spread
+        # behind the summary marker.
         axis.scatter(
             [record["runtimeSeconds"] for record in group],
             [record["accuracyPercent"] for record in group],
@@ -342,7 +343,7 @@ def render(records: list[dict[str, Any]], summary: dict[str, dict[str, float | i
     fig.text(
         0.13,
         0.905,
-        "Five runs per architecture - measured CPU reference runs",
+        "Five user-recorded CPU runs per architecture - matched seeds and training setup",
         ha="left",
         va="top",
         fontsize=8.5,
